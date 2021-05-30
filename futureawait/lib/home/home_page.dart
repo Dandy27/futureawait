@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     _chronometerText = '$hours: $minutes : $seconds';
   }
 
-  void loadPageAsyncAwaint() async {
+  Future<void> loadPageAsyncAwaint() async {
     final repository = BuscasRepository();
 
     setState(() {
@@ -52,6 +52,31 @@ class _HomePageState extends State<HomePage> {
     final busca1 = await repository.buscarDados1();
     final busca2 = await repository.buscarDados2();
     final busca3 = await repository.buscarDados3();
+    _chrnometer.stop();
+    setState(() {
+      _message = 'Consulta finalizada';
+    });
+  }
+
+  Future<void> loadPageAsync() async {
+    final repository = BuscasRepository();
+
+    setState(() {
+      _message = 'Iniciando consulta';
+    });
+
+    _chrnometer.reset();
+    _startChronometer();
+
+    _chrnometer.start();
+
+    final busca1 = repository.buscarDados1();
+    final busca2 = repository.buscarDados2();
+    final busca3 = repository.buscarDados3();
+
+    final resultArray = await Future.wait([busca1, busca2, busca3]);
+    print(resultArray);
+
     _chrnometer.stop();
     setState(() {
       _message = 'Consulta finalizada';
@@ -73,9 +98,10 @@ class _HomePageState extends State<HomePage> {
                 child: const Text('Iniciar Consulta Async Await'),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () => loadPageAsync(),
                 child: const Text('Iniciar Consulta Async '),
               ),
+              // ignore: avoid_unnecessary_containers
               Container(
                 child: Text(
                   _chronometerText,
